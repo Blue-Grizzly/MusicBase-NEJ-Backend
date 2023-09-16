@@ -1,7 +1,9 @@
 import cors from "cors";
 import express from "express";
-import fs from "fs/promises";
+// import fs from "fs/promises"; #cargoProgrammør HAHAHA
 import { connection } from "database.js";
+
+const port = 3000;
 
 app.use(express.json());
 app.use(cors());
@@ -47,27 +49,28 @@ function searchArtist(request, response) {
   const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
-    const artists = results.map();
-    response.json(artists);
+    response.json(results);
   });
 }
 
 function searchAlbum(request, response) {
   const searchterm = request.params.searchterm;
-  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+  const query = `SELECT * FROM albums WHERE name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
-    const albums = results.map();
-    response.json(albums);
+    response.json(results);
   });
 }
 
 function searchTrack(request, response) {
   const searchterm = request.params.searchterm;
-  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+  const query = `SELECT * FROM tracks WHERE name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
-    const tracks = results.map();
-    response.json(tracks);
+    response.json(results);
   });
 }
+
+app.listen(port, () => {
+  console.log("server started at port 3000");
+});
