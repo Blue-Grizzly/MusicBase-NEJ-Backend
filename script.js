@@ -1,9 +1,11 @@
 import cors from "cors";
 import express from "express";
 // import fs from "fs/promises"; #cargoProgrammør HAHAHA
-import { connection } from "database.js";
+import { connection } from "./database.js";
 
 const port = 3000;
+
+const app = express();
 
 app.use(express.json());
 app.use(cors());
