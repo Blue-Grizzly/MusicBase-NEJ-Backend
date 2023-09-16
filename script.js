@@ -9,7 +9,10 @@ app.use(cors());
 app.get("/artists", getAllArtists);
 app.get("/artists/:id", getArtist);
 
-app.get("")
+app.get("/search/artists:searchterm", searchArtist);
+app.get("/search/albums:searchterm", searchAlbum);
+app.get("/search/tracks:searchterm", searchTrack);
+
 function getAllArtists(req, res) {
   // const artists = await readFileParseJson();
 
@@ -29,12 +32,42 @@ function getArtist(request, response) {
 
   const query = `SELECT * FROM artists WHERE id=?`;
   const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
- 
+
   connection.query(query, values, (err, results, fields) => {
     if (err) {
       console.log(err);
     } else {
       response.json(results[0]);
     }
+  });
+}
+
+function searchArtist(request, response) {
+  const searchterm = request.params.searchterm;
+  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+
+  connection.query(query, (err, results, fields) => {
+    const artists = results.map();
+    response.json(artists);
+  });
+}
+
+function searchAlbum(request, response) {
+  const searchterm = request.params.searchterm;
+  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+
+  connection.query(query, (err, results, fields) => {
+    const albums = results.map();
+    response.json(albums);
+  });
+}
+
+function searchTrack(request, response) {
+  const searchterm = request.params.searchterm;
+  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+
+  connection.query(query, (err, results, fields) => {
+    const tracks = results.map();
+    response.json(tracks);
   });
 }
