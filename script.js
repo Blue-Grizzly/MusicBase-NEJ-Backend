@@ -112,7 +112,7 @@ function getTrack(request, response) {
 
 function searchArtist(request, response) {
   const searchterm = request.params.searchterm;
-  const query = `SELECT * FROM artits WHERE name LIKE "%${searchterm}%"`;
+  const query = `SELECT * FROM artists WHERE artist_name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
     response.json(results);
@@ -121,7 +121,7 @@ function searchArtist(request, response) {
 
 function searchAlbum(request, response) {
   const searchterm = request.params.searchterm;
-  const query = `SELECT * FROM albums WHERE name LIKE "%${searchterm}%"`;
+  const query = `SELECT * FROM albums WHERE album_name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
     response.json(results);
@@ -130,7 +130,7 @@ function searchAlbum(request, response) {
 
 function searchTrack(request, response) {
   const searchterm = request.params.searchterm;
-  const query = `SELECT * FROM tracks WHERE name LIKE "%${searchterm}%"`;
+  const query = `SELECT * FROM tracks WHERE track_name LIKE "%${searchterm}%"`;
 
   connection.query(query, (err, results, fields) => {
     response.json(results);
