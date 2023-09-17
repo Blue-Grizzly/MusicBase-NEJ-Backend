@@ -13,9 +13,15 @@ app.use(cors());
 app.get("/artists", getAllArtists);
 app.get("/artists/:id", getArtist);
 
-app.get("/search/artists:searchterm", searchArtist);
-app.get("/search/albums:searchterm", searchAlbum);
-app.get("/search/tracks:searchterm", searchTrack);
+app.get("/albums", getAllAlbums);
+app.get("/albums/:id", getAlbum);
+
+app.get("/tracks", getAllTracks);
+app.get("/trakcs/:id", getTrack);
+
+app.get("/search/artists/:searchterm", searchArtist);
+app.get("/search/albums/:searchterm", searchAlbum);
+app.get("/search/tracks/:searchterm", searchTrack);
 
 function getAllArtists(req, res) {
   // const artists = await readFileParseJson();
@@ -32,9 +38,67 @@ function getAllArtists(req, res) {
 }
 
 function getArtist(request, response) {
+  const id = request.params.artist_id;
+
+  const query = `SELECT * FROM artists WHERE artist_id=?`; //this and the params. must be identical to that of the database coloumn
+  const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
+
+  connection.query(query, values, (err, results, fields) => {
+    if (err) {
+      console.log(err);
+    } else {
+      response.json(results[0]);
+    }
+  });
+}
+
+function getAllAlbums(req, res) {
+  // const artists = await readFileParseJson();
+
+  const query = `SELECT * FROM albums`;
+
+  connection.query(query, (err, results, fields) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(results);
+    }
+  });
+}
+
+function getAlbum(request, response) {
   const id = request.params.id;
 
-  const query = `SELECT * FROM artists WHERE id=?`;
+  const query = `SELECT * FROM albums WHERE id=?`;
+  const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
+
+  connection.query(query, values, (err, results, fields) => {
+    if (err) {
+      console.log(err);
+    } else {
+      response.json(results[0]);
+    }
+  });
+}
+
+function getAllTracks(req, res) {
+  // const artists = await readFileParseJson();
+
+  const query = `SELECT * FROM tracks`;
+
+  connection.query(query, (err, results, fields) => {
+    if (err) {
+      console.log(err);
+    } else {
+      res.json(results);
+    }
+  });
+}
+
+function getTrack(request, response) {
+  const id = request.params.id;
+
+  const query = `SELECT * FROM tracks WHERE id=?`;
   const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
 
   connection.query(query, values, (err, results, fields) => {
