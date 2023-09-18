@@ -1,4 +1,5 @@
 import mysql from "mysql2";
+import fs from "fs";
 import "dotenv/config";
 const pEnv = process.env;
 

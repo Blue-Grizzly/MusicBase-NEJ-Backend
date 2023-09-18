@@ -1,7 +1,7 @@
 import cors from "cors";
 import express from "express";
 import { connection } from "./database.js";
-import fs from "fs";
+
 
 
 const port = 3000;
