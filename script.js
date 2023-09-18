@@ -11,13 +11,13 @@ app.use(express.json());
 app.use(cors());
 
 app.get("/artists", getAllArtists);
-app.get("/artists/:id", getArtist);
+app.get("/artists/:artist_id", getArtist);
 
 app.get("/albums", getAllAlbums);
-app.get("/albums/:id", getAlbum);
+app.get("/albums/:album_id", getAlbum);
 
 app.get("/tracks", getAllTracks);
-app.get("/trakcs/:id", getTrack);
+app.get("/trakcs/:track_id", getTrack);
 
 app.get("/search/artists/:searchterm", searchArtist);
 app.get("/search/albums/:searchterm", searchAlbum);
@@ -67,9 +67,9 @@ function getAllAlbums(req, res) {
 }
 
 function getAlbum(request, response) {
-  const id = request.params.id;
+  const id = request.params.album_id;
 
-  const query = `SELECT * FROM albums WHERE id=?`;
+  const query = `SELECT * FROM albums WHERE album_id=?`;
   const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
 
   connection.query(query, values, (err, results, fields) => {
@@ -96,9 +96,9 @@ function getAllTracks(req, res) {
 }
 
 function getTrack(request, response) {
-  const id = request.params.id;
+  const id = request.params.track_id;
 
-  const query = `SELECT * FROM tracks WHERE id=?`;
+  const query = `SELECT * FROM tracks WHERE track_id=?`;
   const values = [id]; //skriver sådan fordi sql injection noget med sikkerhed!!!!
 
   connection.query(query, values, (err, results, fields) => {
