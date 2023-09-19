@@ -1,17 +1,19 @@
 import cors from "cors";
 import express from "express";
+import tracksRouter from "./routes/tracks.js";
 import { artistsRouter } from "./routes/artists.js";
 import { albumRouter } from "./routes/albums.js";
 
 
 
-const port = 4000;
+const port = process.env.PORT || 4000;
 
 const app = express();
 
 app.use(express.json());
 app.use(cors());
 
+app.use("/tracks", tracksRouter);
 app.use("/artists", artistsRouter);
 
 app.use("/albums", albumRouter);

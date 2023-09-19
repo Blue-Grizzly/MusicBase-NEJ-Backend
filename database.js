@@ -17,4 +17,4 @@ if (process.env.MYSQL_CERT) {
 
 const connection = mysql.createConnection(dbconfig);
 
-export default connection ;
+export default connection;
