@@ -5,7 +5,6 @@ const pEnv = process.env;
 
 const dbconfig = {
   host: pEnv.MYSQL_HOST,
-  port: pEnv.MYSQL_PORT,
   user: pEnv.MYSQL_USER,
   database: pEnv.MYSQL_DATABASE,
   password: pEnv.MYSQL_PASSWORD,
