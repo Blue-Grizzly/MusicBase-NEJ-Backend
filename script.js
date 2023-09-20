@@ -3,8 +3,7 @@ import express from "express";
 import tracksRouter from "./routes/tracks.js";
 import { artistsRouter } from "./routes/artists.js";
 import { albumRouter } from "./routes/albums.js";
-
-
+import { searchRouter } from "./routes/search.js";
 
 const port = process.env.PORT || 4000;
 
@@ -17,6 +16,8 @@ app.use("/tracks", tracksRouter);
 app.use("/artists", artistsRouter);
 
 app.use("/albums", albumRouter);
+
+app.use("/search", searchRouter)
 
 
 // app.get("/search/artists/:searchterm", searchArtist);
