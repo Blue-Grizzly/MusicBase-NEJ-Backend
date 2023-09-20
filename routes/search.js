@@ -42,7 +42,7 @@ searchRouter.get("/artist/:searchterm", (request, response) => {
 
 
 // søge på album navn
-searchRouter.get("/albumn/:searchterm", (request, response) => {
+searchRouter.get("/album/:searchterm", (request, response) => {
   const searchterm = request.params.searchterm;
   const query = `SELECT * FROM albums WHERE name LIKE "%${searchterm}%"`;
 

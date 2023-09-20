@@ -2,24 +2,12 @@ import { Router } from "express";
 import connection from "../database.js";
 
 const artistsRouter = Router();
-
+// inner vælger at artist kan kun vælge det der har artist og har track og albums
 artistsRouter.get("/", (request, response) => {
-  const query = /*sql*/ `SELECT artists.*,
-    artists.name AS artistName,
-    artists.id AS artistId,
-    tracks.name AS trackName,
-    albums.name AS albumName
-FROM artists
-
-INNER JOIN artists_tracks
-    ON artists.id = artists_tracks.artist_id
-INNER JOIN tracks
-    ON artists_tracks.track_id = tracks.id
-
-INNER JOIN artists_albums
-    ON artists.id = artists_albums.artist_id
-INNER JOIN albums
-    ON artists_albums.album_id = albums.id
+  
+  const query = /*sql*/ `
+  SELECT *
+  FROM artists;
 `;
 
   connection.query(query, (err, results, fields) => {
@@ -27,8 +15,8 @@ INNER JOIN albums
       console.log(err);
       response.status(500).json({ error: "An error occurred" });
     } else {
-      const artists = prepareArtistData(results);
-      response.json(artists);
+     
+      response.json(results);
     }
   });
 });
@@ -37,76 +25,109 @@ INNER JOIN albums
 artistsRouter.get("/:id", (request, response) => {
 const id = request.params.id;
 
-  const query = /*sql*/ `SELECT artists.*,
-    artists.name AS artistName,
-    artists.id AS artistId,
-    tracks.name AS trackName,
-    albums.name AS albumName
-FROM artists
-
-INNER JOIN artists_tracks
-    ON artists.id = artists_tracks.artist_id
-INNER JOIN tracks
-    ON artists_tracks.track_id = tracks.id
-
-INNER JOIN artists_albums
-    ON artists.id = artists_albums.artist_id
-INNER JOIN albums
-    ON artists_albums.album_id = albums.id
-
-WHERE artists.id = ?
+  const artistQuery = /*sql*/ `
+  SELECT *
+  FROM artists
+  WHERE artists.id = ?
 `;
+
+
 
 const values = [id];
 
-  connection.query(query, values, (err, results, fields) => {
+  connection.query(artistQuery, values, (err, results, fields) => {
     if (err) {
       console.log(err);
       response.status(500).json({ error: "An error occurred" });
     } else {
-      const artists = prepareArtistData(results);
-      response.json(artists);
+
+      const artist = {
+        name: results[0].name,
+        image: results[0].image,
+        birthday: results[0].birthday,
+        activeSince: results[0].activeSince,
+        labels: results[0].labels,
+        website: results[0].website,
+        genres: results[0].genres,
+        description: results[0].description,
+        albums: []
+      }
+      // console.log(results);
+      const albumQuery = /*sql*/ `
+      SELECT * 
+      FROM albums
+      INNER JOIN artists_albums
+      ON albums.id = artists_albums.album_id
+      WHERE artists_albums.artist_id = ?
+      `
+      connection.query(albumQuery, values, (err, results, fields) => {
+        if(err){
+          response.status(500).json(err);
+        } else {
+          for (const album of results) {
+            artist.albums.push(album);
+          }
+          console.log(results);
+        }
+
+        response.json(artist);
+      })
+      
+
+      
     }
   });
 });
 
+artistsRouter.post("/", (request, response) =>{
+  
+  const artist = request.body;
+  //flere properties se jeres første opgave
+  const values = [
+    artist.name,
+    artist.image,
+    artist.description,
+    artist.birthday,
+    artist.activeSince,
+    artist.labels,
+    artist.website,
+    artist.genres
+  ];
 
+  const query = `INSERT INTO artists  (name, image, description, birthday, activeSince, labels, website, genres) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
-
-
-function prepareArtistData(results) {
-  // Create an object to store posts with users as an array
-  const artistsWithAlbumTracks = {};
-
-  for (const artist of results) {
-    // If the artist is not in the object, add it
-    if (!artistsWithAlbumTracks[artist.id]) {
-      artistsWithAlbumTracks[artist.id] = {
-        id: artist.id,
-        name: artist.artistName,
-        // Add other artist properties here
-        albums: [],
-        tracks: [],
-      };
+  connection.query(query, values, (err, results, fields) => {
+    if (err) {
+      console.log(err);
+    } else {
+      console.log(err)
+      response.json(results);
     }
 
-    // Add album information to the artist's users array
-    if (!artistsWithAlbumTracks[artist.id].albums.find((a) => a.name === artist.albumName)) {
-      artistsWithAlbumTracks[artist.id].albums.push({
-        name: artist.albumName,
-      });
-    }
+  });
+});
 
-    if (!artistsWithAlbumTracks[artist.id].tracks.find((a) => a.name === artist.trackName)) {
-      artistsWithAlbumTracks[artist.id].tracks.push({
-        name: artist.trackName,
-      });
-    }
-  }
+artistsRouter.delete((request, response) =>{
+const id = request.params.id;
+const query = /*sql*/ `
+DELETE FROM artists_albums WHERE artist_id = '${id}';
+DELETE FROM artists_tracks WHERE artist_id = '${id}';
+DELETE FROM artists_labels WHERE artist_id = '${id}';
+DELETE FROM artists_genres WHERE artist_id = '${id}';
 
-  // Convert the object of posts into an array
-  const artistArray = Object.values(artistsWithAlbumTracks);
-  return artistArray;
+DELETE FROM artists WHERE id='${id}'`;
+
+
+connection.query(query, values, (err, resulsts, fields) => {
+if(err){
+  console.log(err)
+} else{
+  response.json(resulsts);
 }
+});
+});
+
+
+
 
 export { artistsRouter };

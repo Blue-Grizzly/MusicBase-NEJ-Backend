@@ -1,42 +1,13 @@
 import { Router} from "express";
 import connection from "../database.js";
 
-const albumRouter = Router();
-
-albumRouter.get("/", (request, response) => {
+const albumsRouter = Router();
+// måske kun være albums info. behøver ikke at være der (peter)
+// hent al info om album
+albumsRouter.get("/", (request, response) => {
   const query = /*sql*/ `
-   SELECT albums.*,
-
-    albums.name AS albumName,
-    tracks.name AS trackName,
-    tracks.length AS trackLength,
-    labels.name AS labelName,
-    genres.name AS genreName,
-    artists.name AS artistName
-    
-
-    FROM albums
-
-    
-    INNER JOIN artists_albums
-        ON albums.id = artists_albums.album_id
-    INNER JOIN artists
-        ON artists_albums.artist_id = artists.id
-
-    INNER JOIN tracks_albums
-        ON albums.id = tracks_albums.album_id
-    INNER JOIN tracks
-        ON tracks_albums.track_id = tracks.id
-
-    INNER JOIN albums_labels
-        ON albums.id= albums_labels.album_id
-    INNER JOIN labels
-        ON albums_labels.label_id = labels.id
-
-    INNER JOIN albums_genres
-        ON albums.id = albums_genres.album_id
-    INNER JOIN genres
-        ON albums_genres.genre_id = genres.id;
+  SELECT *
+  FROM albums
 `;
 
   connection.query(query, (err, results, fields) => {
@@ -44,107 +15,87 @@ albumRouter.get("/", (request, response) => {
       console.log(err);
       response.status(500).json({ error: "An error occurred" });
     } else {
-      const artists = prepareAlbumData(results);
-      response.json(artists);
+      
+      response.json(results);
     }
   });
 });
 
 
-albumRouter.get("/:id", (request, response) => {
+albumsRouter.get("/:id", (request, response) => {
+  // vil gerne have info om specifikt album med list over sange osv.
   const id = request.params.id;
 
 
-  const query = /*sql*/ `
-   SELECT albums.*,
-
-    albums.name AS albumName,
-    tracks.name AS trackName,
-    tracks.length AS trackLength,
-    labels.name AS labelName,
-    genres.name AS genreName,
-    artists.name AS artistName
-    
-
+  
+  const albumQuery = /*sql*/ `
+   SELECT *
     FROM albums
-
-    INNER JOIN artists_albums
-        ON albums.id = artists_albums.album_id
-    INNER JOIN artists
-        ON artists_albums.artist_id = artists.id
-
-    INNER JOIN tracks_albums
-        ON albums.id = tracks_albums.album_id
-    INNER JOIN tracks
-        ON tracks_albums.track_id = tracks.id
-
-    INNER JOIN albums_labels
-        ON albums.id= albums_labels.album_id
-    INNER JOIN labels
-        ON albums_labels.label_id = labels.id
-
-    INNER JOIN albums_genres
-        ON albums.id = albums_genres.album_id
-    INNER JOIN genres
-        ON albums_genres.genre_id = genres.id
-    
-    WHERE albums.id = ?;
-`;
+    where id = ?`
+   
 
 const values = [id]
 
-  connection.query(query, values, (err, results, fields) => {
+  connection.query(albumQuery, values, (err, results, fields) => {
     if (err) {
       console.log(err);
       response.status(500).json({ error: "An error occurred" });
     } else {
-      const artists = prepareAlbumData(results);
-      response.json(artists);
+
+    
+      // TODO: Fyld info fra results ind i album
+console.log(results);
+    
+        // Nu står der album-info i results ...
+      const album = {
+      name: results[0].name,
+      image:results[0].image,
+        tracks: []
+      };
+
+      
+
+      const trackQuery = /*sql*/`
+        SELECT * FROM tracks
+        INNER JOIN tracks_albums
+        ON tracks.id = tracks_albums.track_id
+        WHERE tracks_albums.album_id = ?`
+
+        connection.query(trackQuery, values, (err, results, fields) => {
+
+          // hvis der ikke er nogen fejl ...
+          if(err){
+            response.status(500).json(err);
+          }else {// nu står der et array af track-info i results
+          // TODO: Loop igennem de tracks, og put dem ind i album fra før ...
+            for (const track of results) {
+              album.tracks.push(track);
+            }
+          }
+          // OG send så album som json
+           response.json(album);
+        });   
     }
   });
 });
 
 
+albumsRouter.delete((request, response) =>{
+const id = request.params.id;
+const query = /*sql*/ `
+DELETE FROM artists_albums WHERE album_id = '${id}';
+DELETE FROM tracks_albums WHERE album_id = '${id}';
+DELETE FROM albums WHERE id='${id}'`;
 
 
-function prepareAlbumData(results) {
-  // Create an object to store posts with users as an array
-  const albumsWithAritstsTracks = {};
-
-  for (const album of results) {
-    // If the artist is not in the object, add it
-    if (!albumsWithAritstsTracks[album.id]) {
-      albumsWithAritstsTracks[album.id] = {
-        id: album.id,
-        name: album.albumName,
-        // Add other properties here
-        artists: [],
-        tracks: [],
-      };
-    }
-
-    // Add album information to the artist's users array
-    if (!albumsWithAritstsTracks[album.id].artists.find((a) => a.name === album.artistName)) {
-      albumsWithAritstsTracks[album.id].artists.push({
-        name: album.artistName
-      });
-    }
-
-    
-
-
-    if (!albumsWithAritstsTracks[album.id].tracks.find((a) => a.name === album.trackName)) {
-      albumsWithAritstsTracks[album.id].tracks.push({
-        name: album.trackName
-      });
-    }
-  }
-
-  // Convert the object of posts into an array
-  const artistArray = Object.values(albumsWithAritstsTracks);
-  return artistArray;
+connection.query(query, values, (err, resulsts, fields) => {
+if(err){
+  console.log(err)
+} else{
+  response.json(resulsts);
 }
+});
+});
 
 
-
-export { albumRouter };
+export { albumsRouter }

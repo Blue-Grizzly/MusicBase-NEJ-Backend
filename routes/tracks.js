@@ -6,31 +6,16 @@ const tracksRouter = Router();
 tracksRouter.get("/", (request, response) => {
     // sql query to select all from the table artists
     const query = /*sql*/ `
-        SELECT tracks.*,
-            tracks.name AS trackName,
-            artists.name AS artistName,
-            tracks.id AS trackId,
-            artists.id AS artistId,
-            albums.name AS albumName,
-            albums.id AS albumId
+        SELECT *
         FROM tracks
-        INNER JOIN artists_tracks
-            ON tracks.id = artists_tracks.track_id
-        INNER JOIN artists
-            ON artists_tracks.artist_id = artists.id
-        INNER JOIN tracks_albums
-            ON tracks.id = tracks_albums.track_id
-        INNER JOIN albums
-            ON tracks_albums.album_id = albums.id;
+        
 `;
     connection.query(query, (error, results, fields) => {
         if (error) {
-            console.log(error);
             // Handle error and send an error response if needed
             response.status(500).json({ error: "An error occurred" });
         } else {
-            const tracks = prepareTrackData(results);
-            response.json(tracks);
+            response.json(results);
         }
     });
 });
@@ -39,42 +24,61 @@ tracksRouter.get("/:id", (request, response) => {
     const id = request.params.id;
 
     // sql query to select all from the table posts
-const query = /*sql*/ `
-    SELECT tracks.*,
-        tracks.name AS trackName,
-        artists.name AS artistName,
-        tracks.id AS trackId,
-        artists.id AS artistId,
-        albums.name AS albumName,
-        albums.id AS albumId
+const trackQuery = /*sql*/ `
+    SELECT *
     FROM tracks
-    INNER JOIN artists_tracks
-        ON tracks.id = artists_tracks.track_id
-    INNER JOIN artists
-        ON artists_tracks.artist_id = artists.id
-    INNER JOIN tracks_albums
-        ON tracks.id = tracks_albums.track_id
-    INNER JOIN albums
-        ON tracks_albums.album_id = albums.id
-    WHERE tracks.id = ?;
-`;
-    const values = [id];
+    WHERE tracks.id = ?`;
 
-    connection.query(query, values, (error, results, fields) => {
-        if (error) {
-            console.log(error);
+    const values = [id,id]
+
+    connection.query(trackQuery, values, (err, results, fields) => {
+        if (err) {
             // Handle error and send an error response if needed
-            response.status(500).json({ error: "An error occurred" });
+            response.status(500).json( err);
         } else {
-            // Prepare the data - array of posts with users array for each post object
-            const track = prepareTrackData(results);
-            // Send the formatted data as JSON response
-            response.json(track[0]);
+               
+            const track = {
+                name: results[0].name,
+                length: results[0].length,
+                artist: [],
+                album: []
+            };
+
+            const artistQuery = /*sql*/ `
+            SELECT *
+            FROM artists
+            INNER JOIN artists_tracks
+            ON artists.id = artists_tracks.artist_id
+            WHERE artists_tracks.track_id = ?;
+            
+            SELECT *
+            FROM albums
+            INNER JOIN tracks_albums
+            ON albums.id = tracks_albums.album_id
+            WHERE  tracks_albums.track_id = ?
+            `
+
+            connection.query(artistQuery, values, (err,results,fields) =>{
+                if(err){
+                    response.status(500).json(err);
+                } else{
+                    for (const artist of results[0]) {
+                        track.artist.push(artist);
+                    }
+                    for (const album of results[1]) {
+                        track.album.push(album);
+                    }
+
+
+                    
+                }
+                response.json(track);
+            })
         }
     });
 });
 
-
+//farligt søger efter navn og de kan være det samme
 tracksRouter.post("/", (request, response) =>{
     const newTrack = request.body;
     console.log(newTrack);
@@ -89,12 +93,24 @@ tracksRouter.post("/", (request, response) =>{
         VALUES ((SELECT tracks.id FROM tracks WHERE name = ?),
                 (SELECT artists.id FROM artists WHERE name = ?));
     `;
+    //planen
+    /*
+    1. beskriv json data(req.body) hvordan det skal se ud. lav et eksempel. 
+    2. hvis den skal bruge id får den et id så det er frontenden der giver den det rigtige id
+    3. en query skal kun inholde en insert
+    4. få id tilbage fra insertid
+    5.lave den næste insert (tracks_albums) og artists_tracks
+
+    */ 
 
     connection.query(query, values, (error, results, fields) => {
         if(error){
             response.status(500).json(error);
         } else {
             console.log("success");
+
+//ekstra query - results.insertid giver os id vi skal brug i næste query sætte ind i value i query
+
             response.json(results);
     }});
 });
