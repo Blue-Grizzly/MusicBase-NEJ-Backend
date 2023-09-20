@@ -118,17 +118,59 @@ tracksRouter.post("/", (request, response) =>{
 
 tracksRouter.put("/:id", (request, response) => {
     const id = request.params.id;
-    const values = [Object.keys(request.body), Object.values(request.body)];
 
-    console.log(values);
-
+//joins relevant tables for editing
     const query = /*sql*/ `
-        UPDATE tracks SET ? = ?
-        WHERE id = ${id};
+
+        UPDATE tracks
+        INNER JOIN artists_tracks
+            ON tracks.id = artists_tracks.track_id
+        INNER JOIN artists
+            ON artists_tracks.artist_id = artists.id
+        INNER JOIN tracks_albums
+            ON tracks.id = tracks_albums.track_id
+        INNER JOIN albums
+            ON tracks_albums.album_id = albums.id
+        SET tracks.name = '${request.body.name}', 
+            tracks.length = '${request.body.length}', 
+            tracks_albums.album_id = 
+                (SELECT albums.id FROM albums WHERE albums.name LIKE '${request.body.albums}'),
+            artists_tracks.artist_id = 
+                (SELECT artists.id FROM artists WHERE artists.name LIKE '${request.body.artists}')
+        WHERE tracks.id = ${id} OR tracks_albums.track_id = ${id} OR artists_tracks.track_id = ${id};
+
     `;
     
-    connection.query(query, values, (error ))
+    connection.query(query, (error, results, fields) =>{
+        if(error){
+            response.status(500).json(error);
+        } else {
+            response.json(results);
+        }
+    })
 });
+
+tracksRouter.delete("/:id", (request, response) => {
+    const id = request.params.id;
+
+    //remember to delete junction table entrances first
+    const query = /*sql*/ `
+    DELETE FROM tracks_albums WHERE track_id = '${id}';
+    DELETE FROM artists_tracks WHERE track_id = '${id}';
+    DELETE FROM tracks_genres WHERE track_id ='${id}';
+    DELETE FROM tracks WHERE id = '${id}';
+    `;
+    
+    connection.query(query, (error, results, fields) =>{
+        if(error){
+            response.status(500).json(error);
+        } else {
+            response.json(results);
+        }
+    })
+});
+
+
 
 
 export default tracksRouter;
