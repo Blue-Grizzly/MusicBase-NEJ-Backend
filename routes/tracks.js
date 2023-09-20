@@ -157,7 +157,6 @@ tracksRouter.delete("/:id", (request, response) => {
     const query = /*sql*/ `
     DELETE FROM tracks_albums WHERE track_id = '${id}';
     DELETE FROM artists_tracks WHERE track_id = '${id}';
-    DELETE FROM tracks_genres WHERE track_id ='${id}';
     DELETE FROM tracks WHERE id = '${id}';
     `;
     
