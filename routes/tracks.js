@@ -69,10 +69,51 @@ const query = /*sql*/ `
             // Prepare the data - array of posts with users array for each post object
             const track = prepareTrackData(results);
             // Send the formatted data as JSON response
-            response.json(track);
+            response.json(track[0]);
         }
     });
 });
+
+
+tracksRouter.post("/", (request, response) =>{
+    const newTrack = request.body;
+    console.log(newTrack);
+    const values = [newTrack.name, newTrack.length, newTrack.name, newTrack.albums, newTrack.name, newTrack.artists]
+    const query = /*sql*/ `
+    INSERT INTO tracks (name, length) 
+        VALUES (?,?);
+    INSERT INTO tracks_albums (track_id, album_id)
+        VALUES ((SELECT tracks.id FROM tracks WHERE name = ?),
+                (SELECT albums.id FROM albums WHERE name = ?));
+    INSERT INTO artists_tracks (track_id, artist_id)
+        VALUES ((SELECT tracks.id FROM tracks WHERE name = ?),
+                (SELECT artists.id FROM artists WHERE name = ?));
+    `;
+
+    connection.query(query, values, (error, results, fields) => {
+        if(error){
+            response.status(500).json(error);
+        } else {
+            console.log("success");
+            response.json(results);
+    }});
+});
+
+
+tracksRouter.put("/:id", (request, response) => {
+    const id = request.params.id;
+    const values = [Object.keys(request.body), Object.values(request.body)];
+
+    console.log(values);
+
+    const query = /*sql*/ `
+        UPDATE tracks SET ? = ?
+        WHERE id = ${id};
+    `;
+    
+    connection.query(query, values, (error ))
+});
+
 
 export default tracksRouter;
 
@@ -93,10 +134,13 @@ function prepareTrackData(results) {
         }
 
         // Add the album and artist information to the arrays
+        if(!tracksWithArtistAlbum[track.id].albums.find(a => a.name === track.albumName)){
         tracksWithArtistAlbum[track.id].albums.push({
             name: track.albumName,
             id: track.albumId
         });
+    };
+        if(!tracksWithArtistAlbum[track.id].artists.find(a => a.name === track.artistName))
         tracksWithArtistAlbum[track.id].artists.push({
             name: track.artistName,
             id: track.artistId
