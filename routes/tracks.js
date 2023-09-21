@@ -83,9 +83,8 @@ tracksRouter.post("/", (request, response) =>{
     const newTrack = request.body;
     console.log(newTrack);
     const values = [newTrack.name, newTrack.length]
-    const query = /*sql*/ `
-    INSERT INTO tracks (name, length) 
-        VALUES (?,?);
+    const trackQuery = /*sql*/ `
+    INSERT INTO tracks (name, length) VALUES (?,?);
     `;
     //planen
     /*
@@ -96,52 +95,46 @@ tracksRouter.post("/", (request, response) =>{
     5.lave den næste insert (tracks_albums) og artists_tracks
 */
 
-    connection.query(query, values, (error, results, fields) => {
+    connection.query(trackQuery, values, (error, results, fields) => {
         if(error){
             response.status(500).json(error);
         } else {
-            console.log("success");
+            const newTrackId = results.insertId;
 
 //ekstra query - results.insertid giver os id vi skal brug i næste query sætte ind i value i query
 
-            response.json(results);
     }});
 });
 
 
 tracksRouter.put("/:id", (request, response) => {
     const id = request.params.id;
-
-//joins relevant tables for editing
-    const query = /*sql*/ `
-
-        UPDATE tracks
-        INNER JOIN artists_tracks
-            ON tracks.id = artists_tracks.track_id
-        INNER JOIN artists
-            ON artists_tracks.artist_id = artists.id
-        INNER JOIN tracks_albums
-            ON tracks.id = tracks_albums.track_id
-        INNER JOIN albums
-            ON tracks_albums.album_id = albums.id
-        SET tracks.name = '${request.body.name}', 
-            tracks.length = '${request.body.length}', 
-            tracks_albums.album_id = 
-                (SELECT albums.id FROM albums WHERE albums.name LIKE '${request.body.albums}'),
-            artists_tracks.artist_id = 
-                (SELECT artists.id FROM artists WHERE artists.name LIKE '${request.body.artists}')
-        WHERE tracks.id = ${id} OR tracks_albums.track_id = ${id} OR artists_tracks.track_id = ${id};
-
-    `;
     
-    connection.query(query, (error, results, fields) =>{
-        if(error){
-            response.status(500).json(error);
-        } else {
+    const track = request.body;
+    
+    const query = /*sql*/ `
+    
+    UPDATE tracks
+    SET name = ?, length = ?
+    WHERE tracks.id = ?
+    `
+    
+    const values = [
+            track.name,
+            track.length,
+            id];
+    
+        connection.query(query, values, (err,results, fields) => {
+          if(err){
+            console.log(err);
+                  response.status(500).json(err);
+          } else{
+            console.log(err);
             response.json(results);
-        }
-    })
-});
+          }
+        });
+    });
+
 
 tracksRouter.delete("/:id", (request, response) => {
     const id = request.params.id;

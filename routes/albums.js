@@ -1,4 +1,4 @@
-import { Router, response} from "express";
+import { Router } from "express";
 import connection from "../database.js";
 
 const albumsRouter = Router();
@@ -182,6 +182,36 @@ connection.query(albumQuery,values, (err,results, fields) =>{
 })
 
 })
+
+albumsRouter.put("/:id", (request, response) => {
+  const id = request.params.id;
+  
+  const album = request.body;
+  
+  const query = /*sql*/ `
+  
+  UPDATE albums
+  SET name = ?, image = ?
+  WHERE albums.id = ?
+  `
+  
+  const values = [
+          album.name,
+          album.image,
+          id];
+  
+      connection.query(query, values, (err,results, fields) => {
+        if(err){
+          console.log(err);
+                response.status(500).json(err);
+        } else{
+          console.log(err);
+          response.json(results);
+        }
+      });
+  });
+
+
 
 albumsRouter.delete("/:id",(request, response) =>{
 const id = request.params.id;
