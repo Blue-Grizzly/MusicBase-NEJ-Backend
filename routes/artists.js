@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { Router, request, response } from "express";
 import connection from "../database.js";
 
 const artistsRouter = Router();
@@ -98,7 +98,7 @@ artistsRouter.post("/", (request, response) =>{
 
   connection.query(query, values, (err, results, fields) => {
     if (err) {
-      console.log(err);
+            response.status(500).json(err);
     } else {
       console.log(err)
       response.json(results);
@@ -106,6 +106,43 @@ artistsRouter.post("/", (request, response) =>{
 
   });
 });
+
+artistsRouter.put("/:id", (request, response) => {
+const id = request.params.id;
+
+const artist = request.body;
+
+const query = /*sql*/ `
+
+UPDATE artists
+SET name = ?, image = ?, description = ?, birthday = ?, activeSince = ?, labels = ?, website =?, genres = ?
+WHERE artists.id = ?
+`
+
+const values = [artist.name,
+    artist.image,
+    artist.description,
+    artist.birthday,
+    artist.activeSince,
+    artist.labels,
+    artist.website,
+    artist.genres,
+    id];
+
+    connection.query(query, values, (err,results, fields) => {
+      if(err){
+        console.log(err);
+              response.status(500).json(err);
+      } else{
+        console.log(err);
+        response.json(results);
+      }
+    });
+
+
+
+
+})
 
 artistsRouter.delete((request, response) =>{
 const id = request.params.id;
@@ -118,7 +155,7 @@ DELETE FROM artists WHERE id='${id}'`;
 
 connection.query(query, values, (err, resulsts, fields) => {
 if(err){
-  console.log(err)
+       response.status(500).json(err);
 } else{
   response.json(resulsts);
 }
