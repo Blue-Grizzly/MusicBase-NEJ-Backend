@@ -79,7 +79,7 @@ const trackQuery = /*sql*/ `
 });
 
 //farligt søger efter navn og de kan være det samme
-tracksRouter.post("/", (request, response) =>{
+tracksRouter.post("/", async (request, response) =>{
 
     //frontend en dropdown menu hvor kunstneren vælges og derfor har et id.
 
@@ -101,8 +101,22 @@ tracksRouter.post("/", (request, response) =>{
 */
 
 
+const checkTrack = /*sql*/ `
+SELECT name, length
+FROM tracks
+WHERE name = ? AND length =?
+`
+let check
+connection.query(checkTrack, values, (error, results, fields) =>{
 
-
+    // console.log(results);
+    if(error){
+        response.status(500).json(error);
+    }
+    else{
+    if(!results.length){
+        // return check = false;
+        
     connection.query(trackQuery, values, (error, results, fields) => {
         if(error){
             response.status(500).json(error);
@@ -126,9 +140,12 @@ tracksRouter.post("/", (request, response) =>{
                     return
                 }
             })
-
             
-        } for (const album of newTrack.album) {
+            
+        } 
+        
+        
+        for (const album of newTrack.album) {
             const albumTracksQuery = /*sql*/ `
             INSERT INTO tracks_albums(track_id, album_id) VALUES (?,?);
             `
@@ -153,6 +170,13 @@ tracksRouter.post("/", (request, response) =>{
     }});
 
      response.json({message: "Track created"});
+    }else{
+        response.json({message: "Track Already Exists"});
+    }} 
+});
+
+        // console.log(check);
+
 });
 
 
