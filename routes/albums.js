@@ -42,10 +42,7 @@ const values = [id]
       response.status(500).json({ error: "An error occurred" });
     } else {
 
-    
-      // TODO: Fyld info fra results ind i album
-console.log(results);
-    
+       
         // Nu står der album-info i results ...
       const album = {
       name: results[0].name,
@@ -67,7 +64,7 @@ console.log(results);
           if(err){
             response.status(500).json(err);
           }else {// nu står der et array af track-info i results
-          // TODO: Loop igennem de tracks, og put dem ind i album fra før ...
+          //  Loop igennem de tracks, og put dem ind i album fra før ...
             for (const track of results) {
               album.tracks.push(track);
             }

@@ -12,6 +12,7 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+// necessary access the web page
 app.get("/", (request, response)=>{
     response.end("App running! Data on /artists, /albums, /tracks & /search");
 })
@@ -22,15 +23,6 @@ app.use("/artists", artistsRouter);
 app.use("/albums", albumsRouter);
 
 app.use("/search", searchRouter)
-
-
-// app.get("/search/artists/:searchterm", searchArtist);
-
-// app.get("/search/albums/:searchterm", searchAlbum);
-
-
-// app.get("/search/tracks/:searchterm", searchTrack);
-// app.get("/search/all/:searchterm", searchAll);
 
 
 app.listen(port, () => {

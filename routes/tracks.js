@@ -78,10 +78,10 @@ const trackQuery = /*sql*/ `
     });
 });
 
-//farligt søger efter navn og de kan være det samme
-tracksRouter.post("/", async (request, response) =>{
 
-    //frontend en dropdown menu hvor kunstneren vælges og derfor har et id.
+tracksRouter.post("/", (request, response) =>{
+
+    //frontend en dropdown menu hvor kunstneren vælges og derfor har et id var tanken.
 
     const newTrack = request.body;
 
@@ -107,15 +107,15 @@ FROM tracks
 WHERE name = ? AND length =?
 `
 
+// if result (name and length) already exists it will not create a new
 connection.query(checkTrack, values, (error, results, fields) =>{
 
-    // console.log(results);
     if(error){
         response.status(500).json(error);
     }
     else{
     if(!results.length){
-        // return check = false;
+        
         
     connection.query(trackQuery, values, (error, results, fields) => {
         if(error){
@@ -164,8 +164,6 @@ connection.query(checkTrack, values, (error, results, fields) =>{
                 }
         }
         )}
-       
-//ekstra query - results.insertid giver os id vi skal brug i næste query sætte ind i value i query
 
     }});
 
@@ -174,8 +172,6 @@ connection.query(checkTrack, values, (error, results, fields) =>{
         response.json({message: "Track Already Exists"});
     }} 
 });
-
-        // console.log(check);
 
 });
 
