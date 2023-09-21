@@ -10,7 +10,8 @@ const searchRouter = Router();
 
 searchRouter.get("/all/:searchterm", (request, response) => {
     const searchterm = request.params.searchterm;
-    const query = `SELECT * FROM artists  WHERE name LIKE "%${searchterm}%";
+    const query = /*sql*/ `
+    SELECT * FROM artists  WHERE name LIKE "%${searchterm}%";
     SELECT * FROM albums WHERE name LIKE "%${searchterm}%";
     SELECT * FROM tracks WHERE name LIKE "%${searchterm}%"
     ` 
@@ -30,7 +31,7 @@ searchRouter.get("/all/:searchterm", (request, response) => {
 
 
 //søge på artist navn
-searchRouter.get("/artist/:searchterm", (request, response) => {
+searchRouter.get("/artists/:searchterm", (request, response) => {
   const searchterm = request.params.searchterm;
   const query = `SELECT * FROM artists WHERE name LIKE "%${searchterm}%"`;
 
@@ -42,7 +43,7 @@ searchRouter.get("/artist/:searchterm", (request, response) => {
 
 
 // søge på album navn
-searchRouter.get("/album/:searchterm", (request, response) => {
+searchRouter.get("/albums/:searchterm", (request, response) => {
   const searchterm = request.params.searchterm;
   const query = `SELECT * FROM albums WHERE name LIKE "%${searchterm}%"`;
 
@@ -53,7 +54,7 @@ searchRouter.get("/album/:searchterm", (request, response) => {
 
 
 // søge på track navn
-searchRouter.get("/track/:searchterm", (request, response) => {
+searchRouter.get("/tracks/:searchterm", (request, response) => {
   const searchterm = request.params.searchterm;
   const query = `SELECT * FROM tracks WHERE name LIKE "%${searchterm}%"`;
 

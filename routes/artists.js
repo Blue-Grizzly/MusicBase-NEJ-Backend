@@ -112,8 +112,6 @@ const id = request.params.id;
 const query = /*sql*/ `
 DELETE FROM artists_albums WHERE artist_id = '${id}';
 DELETE FROM artists_tracks WHERE artist_id = '${id}';
-DELETE FROM artists_labels WHERE artist_id = '${id}';
-DELETE FROM artists_genres WHERE artist_id = '${id}';
 
 DELETE FROM artists WHERE id='${id}'`;
 
