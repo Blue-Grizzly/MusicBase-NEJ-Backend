@@ -144,7 +144,7 @@ const values = [artist.name,
 
 })
 
-artistsRouter.delete((request, response) =>{
+artistsRouter.delete("/:id",(request, response) =>{
 const id = request.params.id;
 const query = /*sql*/ `
 DELETE FROM artists_albums WHERE artist_id = '${id}';
