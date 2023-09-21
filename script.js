@@ -12,6 +12,10 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.get("/", (request, response)=>{
+    response.end("App running! Data on /artists, /albums, /tracks & /search");
+})
+
 app.use("/tracks", tracksRouter);
 app.use("/artists", artistsRouter);
 
