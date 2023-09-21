@@ -41,4 +41,92 @@ Installation:
         1 - For CRUD functionality a third party app like Postman is required.
 
         2 - To access the application use endpoint as url in Postman or similar app:  https://nej-musicbase-azure.azurewebsites.net/
-    
+
+
+
+
+To post a full album through Postman please follow the json structure shown in the example below:
+
+    {
+    "name": "Deep Clean Subdivision",
+    "image": "dcsalbumcover.jpg",
+    "tracks": [
+        {
+            "name": "Sedatives",
+            "length": "2:41"
+
+        },
+        {
+            "name": "Gutter Cruiser",
+            "length": "5:28"
+
+        },
+        {
+            "name": "Patient Prep",
+            "length": "1:32"
+
+        },        
+        {
+            "name": "Backroom Surgery",
+            "length": "3:23"
+
+        },        
+        {
+            "name": "Boot",
+            "length": "0:36"
+
+        },        
+        {
+            "name": "Touch the Corpse",
+            "length": "2:46"
+
+        },        
+        {
+            "name": "Waste Management Confidential",
+            "length": "4:10"
+
+        },        
+        {
+            "name": "Void",
+            "length": "5:34"
+
+        },        
+        {
+            "name": "Cerebral Extraction",
+            "length": "3:12"
+
+        },        
+        {
+            "name": "Memory Leak",
+            "length": "0:58"
+
+        },        
+        {
+            "name": "Do Your Job",
+            "length": "1:56"
+
+        },        
+        {
+            "name": "Entering Misantropol",
+            "length": "6:40"
+
+        },        
+        {
+            "name": "Corporate Killer",
+            "length": "4:44"
+
+        }
+    ],
+
+    "artists":
+    [{
+    "name": "Irving Force",
+    "image": "irvingforcepicture.jpg",
+    "birthday": "Feburary 23 1984",
+    "activeSince": "2004",
+    "labels": "Irving Force",
+    "website": "irvingforce.com",
+    "genres": "Metal",
+    "description": "Irving Forces music exudes sonorous synergy of dissonant and harmonious soundwaves that induce an anomalous and evocative experience for the listener."
+    }]
+}
