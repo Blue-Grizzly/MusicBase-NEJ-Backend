@@ -99,42 +99,103 @@ connection.query(albumQuery,values, (err,results, fields) =>{
 
 
     for (const track of album.tracks) {
-      const trackQuery = /*sql*/ `
-      INSERT INTO tracks (name, length) VALUES(?,?);
-      `
-      const trackValues = [
-        track.name,
-        track.length
-      ];
 
-      connection.query(trackQuery, trackValues, (err,results,fields) =>{
-        if(err){
-        response.status(500).json(err);
-        } else {
+      const checkTrack = /*sql*/ `
+        SELECT name, length, id
+        FROM tracks
+        WHERE name = ? AND length =?
+        `;
 
-          const newTrackId = results.insertId;
+        const checkValues = [
+          track.name,
+          track.length
+        ];
 
-          const albumTracksQuery = /*sql*/ `
-          INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
-          `
-
-          const albumTracksValues = [
-            newTrackId,
-            newAlbumId
-          ];
-
-          connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
-             if(err){
+        connection.query(checkTrack, checkValues, (err, response, fields)=>{
+           if(err){
               response.status(500).json(err);
-            } else {
-               return; //stopper flow
-            }
-          })
-        }
-      })
+          }else{
+                if(!results.length){
+                                    const trackQuery = /*sql*/ `
+                                    INSERT INTO tracks (name, length) VALUES(?,?);
+                                            `
+                                    const trackValues = [
+                                      track.name,
+                                      track.length
+                                    ];
+
+                                    connection.query(trackQuery, trackValues, (err,results,fields) =>{
+                                      if(err){
+                                      response.status(500).json(err);
+                                      } else {
+
+                                        const newTrackId = results.insertId;
+
+                                        const albumTracksQuery = /*sql*/ `
+                                        INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
+                                        `
+
+                                        const albumTracksValues = [
+                                          newTrackId,
+                                          newAlbumId
+                                        ];
+
+                                      connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
+                                        if(err){
+                                          response.status(500).json(err);
+                                        } else {
+                                          return; //stopper flow
+                                        }
+                                      })
+                                    }
+                                  })
+                  } else{
+                    const trackId = results[0].id
+
+                     const albumTracksQuery = /*sql*/ `
+                                        INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
+                                        `
+
+                                        const albumTracksValues = [
+                                          trackId,
+                                          newAlbumId
+                                        ];
+
+                                      connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
+                                        if(err){
+                                          response.status(500).json(err);
+                                        } else {
+                                          return; //stopper flow
+                                        }
+                                      })
+                  }
+
+                }
+              })
+
+
+      
     }
 
     for (const artist of album.artists) {
+
+        const checkQuery = /*sql*/ `
+          SELECT name, birthday, id
+          FROM artists
+          WHERE name = ? AND birthday = ? 
+          `
+
+          const checkValues = [
+            artist.name,
+            artist.birthday
+          ];
+
+          connection.query(checkQuery,checkValues, (err,results,fields) =>{
+            if(err){
+              response.status(500).json(err);
+          } else { 
+              if(!results.length){
+                  
       const artistkQuery = /*sql*/ 
   `INSERT INTO artists  (name, image, description, birthday, activeSince, labels, website, genres) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
       
@@ -157,7 +218,7 @@ connection.query(albumQuery,values, (err,results, fields) =>{
           const newArtistId = results.insertId;
 
           const artistAlbumsQuery = /*sql*/ `
-          INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
+          INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?)
           `
 
           const artistAlbumValues = [
@@ -174,6 +235,32 @@ connection.query(albumQuery,values, (err,results, fields) =>{
           })
         }
       })
+
+              } else{
+                const artistId = results[0].id;
+
+                const artistAlbumsQuery = /*sql*/ `
+                INSERT INTO artists_albums (artist_id, album_id) VALUES (?, ?);
+          `
+
+                const artistAlbumValues = [
+                  artistId,
+                  newAlbumId
+                ];
+
+                connection.query(artistAlbumsQuery,artistAlbumValues, (err, results,fields)=>{
+                  if(err){
+                    response.status(500).json(err);
+                  } else {
+                    return; //stopper flow
+                  }
+          })
+
+
+              }
+          }
+          })
+
     }
 
     response.json({message: "Album posted" });
