@@ -113,58 +113,58 @@ connection.query(albumQuery,values, (err,results, fields) =>{
               response.status(500).json(err);
           }else{
                 if(!results.length){
-                                    const trackQuery = /*sql*/ `
-                                    INSERT INTO tracks (name, length) VALUES(?,?);
-                                            `
-                                    const trackValues = [
-                                      track.name,
-                                      track.length
-                                    ];
+                  const trackQuery = /*sql*/ `
+                  INSERT INTO tracks (name, length) VALUES(?,?);
+                          `
+                  const trackValues = [
+                    track.name,
+                    track.length
+                  ];
 
-                                    connection.query(trackQuery, trackValues, (err,results,fields) =>{
-                                      if(err){
-                                      response.status(500).json(err);
-                                      } else {
+                  connection.query(trackQuery, trackValues, (err,results,fields) =>{
+                    if(err){
+                    response.status(500).json(err);
+                    } else {
 
-                                        const newTrackId = results.insertId;
+                      const newTrackId = results.insertId;
 
-                                        const albumTracksQuery = /*sql*/ `
-                                        INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
-                                        `
+                      const albumTracksQuery = /*sql*/ `
+                      INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
+                      `
 
-                                        const albumTracksValues = [
-                                          newTrackId,
-                                          newAlbumId
-                                        ];
+                      const albumTracksValues = [
+                        newTrackId,
+                        newAlbumId
+                      ];
 
-                                      connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
-                                        if(err){
-                                          response.status(500).json(err);
-                                        } else {
-                                          return; //stopper flow
-                                        }
-                                      })
-                                    }
-                                  })
+                    connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
+                      if(err){
+                        response.status(500).json(err);
+                      } else {
+                        return; //stopper flow
+                      }
+                    })
+                  }
+                })
                   } else{
                     const trackId = results[0].id
 
                      const albumTracksQuery = /*sql*/ `
-                                        INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
-                                        `
+                        INSERT INTO tracks_albums (track_id, album_id) VALUES (?, ?)
+                        `
 
-                                        const albumTracksValues = [
-                                          trackId,
-                                          newAlbumId
-                                        ];
+                        const albumTracksValues = [
+                          trackId,
+                          newAlbumId
+                        ];
 
-                                      connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
-                                        if(err){
-                                          response.status(500).json(err);
-                                        } else {
-                                          return; //stopper flow
-                                        }
-                                      })
+                      connection.query(albumTracksQuery,albumTracksValues, (err, results,fields)=>{
+                        if(err){
+                          response.status(500).json(err);
+                        } else {
+                          return; //stopper flow
+                        }
+                      })
                   }
 
                 }
@@ -305,7 +305,7 @@ DELETE FROM tracks_albums WHERE album_id = '${id}';
 DELETE FROM albums WHERE id='${id}'`;
 
 
-connection.query(query, values, (err, resulsts, fields) => {
+connection.query(query, (err, resulsts, fields) => {
 if(err){
   console.log(err)
 } else{

@@ -178,7 +178,7 @@ DELETE FROM artists_tracks WHERE artist_id = '${id}';
 DELETE FROM artists WHERE id='${id}'`;
 
 
-connection.query(query, values, (err, resulsts, fields) => {
+connection.query(query, (err, resulsts, fields) => {
 if(err){
        response.status(500).json(err);
 } else{
