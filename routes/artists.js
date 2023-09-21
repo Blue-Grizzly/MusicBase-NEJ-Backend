@@ -94,6 +94,23 @@ artistsRouter.post("/", (request, response) =>{
     artist.genres
   ];
 
+  const checkQuery = /*sql*/ `
+  SELECT name, birthday
+  FROM artists
+  WHERE name = ? AND birthday = ?  
+  `
+
+  const checkValues = [
+    artist.name,
+    artist.birthday
+  ]
+
+  connection.query(checkQuery, checkValues, (err, results, fields) =>{
+     if (err) {
+            response.status(500).json(err);
+    } else {
+      if(!results.length){
+        
   const query = `INSERT INTO artists  (name, image, description, birthday, activeSince, labels, website, genres) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`;
 
   connection.query(query, values, (err, results, fields) => {
@@ -104,7 +121,15 @@ artistsRouter.post("/", (request, response) =>{
       response.json(results);
     }
 
-  });
+  });        
+      }else{  
+  response.json({message: "Artist already exists"});
+}
+    }
+    
+  })
+
+
 });
 
 artistsRouter.put("/:id", (request, response) => {

@@ -106,7 +106,7 @@ SELECT name, length
 FROM tracks
 WHERE name = ? AND length =?
 `
-let check
+
 connection.query(checkTrack, values, (error, results, fields) =>{
 
     // console.log(results);
