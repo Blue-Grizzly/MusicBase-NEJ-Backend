@@ -82,16 +82,10 @@ const trackQuery = /*sql*/ `
 tracksRouter.post("/", (request, response) =>{
     const newTrack = request.body;
     console.log(newTrack);
-    const values = [newTrack.name, newTrack.length, newTrack.name, newTrack.albums, newTrack.name, newTrack.artists]
+    const values = [newTrack.name, newTrack.length]
     const query = /*sql*/ `
     INSERT INTO tracks (name, length) 
         VALUES (?,?);
-    INSERT INTO tracks_albums (track_id, album_id)
-        VALUES ((SELECT tracks.id FROM tracks WHERE name = ?),
-                (SELECT albums.id FROM albums WHERE name = ?));
-    INSERT INTO artists_tracks (track_id, artist_id)
-        VALUES ((SELECT tracks.id FROM tracks WHERE name = ?),
-                (SELECT artists.id FROM artists WHERE name = ?));
     `;
     //planen
     /*
@@ -100,8 +94,7 @@ tracksRouter.post("/", (request, response) =>{
     3. en query skal kun inholde en insert
     4. få id tilbage fra insertid
     5.lave den næste insert (tracks_albums) og artists_tracks
-
-    */ 
+*/
 
     connection.query(query, values, (error, results, fields) => {
         if(error){
@@ -157,7 +150,6 @@ tracksRouter.delete("/:id", (request, response) => {
     const query = /*sql*/ `
     DELETE FROM tracks_albums WHERE track_id = '${id}';
     DELETE FROM artists_tracks WHERE track_id = '${id}';
-    DELETE FROM tracks_genres WHERE track_id ='${id}';
     DELETE FROM tracks WHERE id = '${id}';
     `;
     
@@ -174,38 +166,3 @@ tracksRouter.delete("/:id", (request, response) => {
 
 
 export default tracksRouter;
-
-function prepareTrackData(results) {
-    // create object to hold tracks
-    const tracksWithArtistAlbum = {};
-
-    //add all tracks not already in the object
-    for (const track of results) {
-        if (!tracksWithArtistAlbum[track.id]) {
-            tracksWithArtistAlbum[track.id] = {
-                id: track.id,
-                name: track.trackName,
-                length: track.length,
-                artists: [],
-                albums: []
-            };
-        }
-
-        // Add the album and artist information to the arrays
-        if(!tracksWithArtistAlbum[track.id].albums.find(a => a.name === track.albumName)){
-        tracksWithArtistAlbum[track.id].albums.push({
-            name: track.albumName,
-            id: track.albumId
-        });
-    };
-        if(!tracksWithArtistAlbum[track.id].artists.find(a => a.name === track.artistName))
-        tracksWithArtistAlbum[track.id].artists.push({
-            name: track.artistName,
-            id: track.artistId
-        });
-    }
-
-    // Convert the object of posts into an array
-    const trackArray = Object.values(tracksWithArtistAlbum);
-    return trackArray;
-}
