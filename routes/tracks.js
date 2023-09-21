@@ -80,9 +80,14 @@ const trackQuery = /*sql*/ `
 
 //farligt søger efter navn og de kan være det samme
 tracksRouter.post("/", (request, response) =>{
+
+    //frontend en dropdown menu hvor kunstneren vælges og derfor har et id.
+
     const newTrack = request.body;
-    console.log(newTrack);
+
     const values = [newTrack.name, newTrack.length]
+
+
     const trackQuery = /*sql*/ `
     INSERT INTO tracks (name, length) VALUES (?,?);
     `;
@@ -95,15 +100,59 @@ tracksRouter.post("/", (request, response) =>{
     5.lave den næste insert (tracks_albums) og artists_tracks
 */
 
+
+
+
     connection.query(trackQuery, values, (error, results, fields) => {
         if(error){
             response.status(500).json(error);
         } else {
             const newTrackId = results.insertId;
+            
+        for (const artist of newTrack.artist) {
+            
+            const artistTrackQuery = /*sql*/`
+            INSERT INTO artists_tracks (artist_id, track_id) VALUES (?,?);
+            `
+            const artistTrackValues = [
+                artist.id,
+                newTrackId
+            ];
 
+            connection.query(artistTrackQuery, artistTrackValues, (err,results, fields) =>{
+                 if(err){
+                    response.status(500).json(err);
+                } else {
+                    return
+                }
+            })
+
+            
+        } for (const album of newTrack.album) {
+            const albumTracksQuery = /*sql*/ `
+            INSERT INTO tracks_albums(track_id, album_id) VALUES (?,?);
+            `
+
+        const trackAlbumValues = [
+            newTrackId,
+            album.id
+           
+        ]
+
+        connection.query(albumTracksQuery, trackAlbumValues, (err,results, fields)=>{
+              if(err){
+                    response.status(500).json(err);
+                } else {
+                    return
+                }
+        }
+        )}
+       
 //ekstra query - results.insertid giver os id vi skal brug i næste query sætte ind i value i query
 
     }});
+
+     response.json({message: "Track created"});
 });
 
 
