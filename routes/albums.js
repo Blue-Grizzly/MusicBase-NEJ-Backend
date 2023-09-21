@@ -108,7 +108,7 @@ connection.query(albumQuery,values, (err,results, fields) =>{
           track.length
         ];
 
-        connection.query(checkTrack, checkValues, (err, response, fields)=>{
+        connection.query(checkTrack, checkValues, (err, results, fields)=>{
            if(err){
               response.status(500).json(err);
           }else{
